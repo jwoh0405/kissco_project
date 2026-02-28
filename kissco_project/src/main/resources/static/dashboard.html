@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Scheduler - 대시보드</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #f4f6f9; }
+        
+        /* 네비게이션 커스텀 */
+        .navbar-custom { background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .nav-link { font-weight: bold; color: #7f8c8d; transition: color 0.2s; }
+        .nav-link:hover { color: #3498db; }
+        .nav-link.active { color: #2980b9; border-bottom: 3px solid #2980b9; }
+
+        /* 카드 디자인 커스텀 */
+        .schedule-card { 
+            background: white; border: none; border-left: 5px solid #bdc3c7; 
+            border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .schedule-card:hover { transform: translateX(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* 중요도별 왼쪽 테두리 색상 */
+        .priority-5 { border-left-color: #e74c3c; } 
+        .priority-4 { border-left-color: #f39c12; } 
+        .priority-3 { border-left-color: #3498db; } 
+        .priority-2 { border-left-color: #2ecc71; } 
+        .priority-1 { border-left-color: #95a5a6; } 
+
+        .star-rating { color: #f1c40f; letter-spacing: 2px; font-size: 0.9rem; }
+        .d-day-badge { border-radius: 20px; font-weight: bold; padding: 5px 12px; }
+        
+        /* 알림 아이콘 버튼화 (이벤트 버블링 차단용) */
+        .notify-btn {
+            background: none; border: none; font-size: 1.1rem; cursor: pointer;
+            padding: 5px; border-radius: 50%; transition: background 0.2s;
+        }
+        .notify-btn:hover { background: #f1f2f6; }
+
+        /* 달력 플레이스홀더 */
+        .calendar-placeholder { 
+            background: white; border: 3px dashed #bdc3c7; border-radius: 10px; 
+            min-height: 500px; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; color: #7f8c8d; 
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-dark" href="dashboard.html">📅 Smart Scheduler</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3 ms-4">
+                    <li class="nav-item"><a class="nav-link active" href="dashboard.html">내 스케줄 보기</a></li>
+                    <li class="nav-item"><a class="nav-link" href="input.html">새 스케줄 추가</a></li> 
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-light rounded-pill fw-bold border" onclick="location.href='profile.html'">
+                        👤 노경식 님 (계정관리)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row g-5">
+            
+            <div class="col-lg-7">
+                <h5 class="fw-bold text-dark border-bottom pb-3 mb-4">📌 다가오는 주요 일정 <span class="text-muted fs-6 fw-normal">(중요도 및 마감일 순)</span></h5>
+                
+                <div id="scheduleListContainer" class="d-flex flex-column gap-3">
+                    </div>
+            </div>
+
+            <div class="col-lg-5">
+                <h5 class="fw-bold text-dark border-bottom pb-3 mb-4">🗓️ 월간 달력</h5>
+                <div class="calendar-placeholder">
+                    <span style="font-size: 3rem; margin-bottom: 15px;">📅</span>
+                    <p class="fw-bold fs-5 mb-1">여기에 달력이 렌더링됩니다.</p>
+                    <small>(FullCalendar 라이브러리 연동 대기중)</small>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const scheduleData = [
+        {
+            "id": 1,
+            "title": "일본 비자 및 재류자격 서류 제출",
+            "content": "주민표 및 사진 2장 지참할 것",
+            "deadline": "2026-02-20T14:00:00",
+            "importance": 5,
+            "alertEnabled": true
+        },
+        {
+            "id": 2,
+            "title": "팀 프로젝트 1주차 PPT 완성",
+            "content": "시연용 GIF 파일 삽입하기",
+            "deadline": "2026-02-21T18:00:00",
+            "importance": 4,
+            "alertEnabled": false
+        }];
+
+        document.addEventListener("DOMContentLoaded", function() 
+        {
+            renderSchedules(scheduleData); 
+        });
+
+        function renderSchedules(data) 
+        {
+            const container = document.getElementById('scheduleListContainer');
+            container.innerHTML = ''; 
+
+            data.forEach(schedule => 
+            {
+                const stars = '⭐'.repeat(schedule.importance);
+                const dDayNum = calculateDDay(schedule.deadline);
+                
+                let dDayText = dDayNum === 0 ? "D-Day" : (dDayNum > 0 ? `D-${dDayNum}` : `D+${Math.abs(dDayNum)}`);
+                let dDayColor = dDayNum <= 0 ? "bg-danger" : (dDayNum <= 3 ? "bg-warning text-dark" : "bg-primary");
+
+                const cardHTML = `
+                    <div class="schedule-card priority-${schedule.importance} p-3 shadow-sm mb-2" onclick="location.href='input.html?id=${schedule.id}'">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="card-info">
+                                <div class="star-rating mb-1">${stars}</div>
+                                <h5 class="fw-bold mb-1 text-dark">${schedule.title}</h5>
+                                <div class="text-muted small">${schedule.deadline.replace('T', ' ')} | 📝 ${schedule.content}</div>
+                            </div>
+                            <div class="card-action text-end">
+                                <span class="badge ${dDayColor} d-day-badge mb-2 fs-6">${dDayText}</span>
+                                <div>
+                                    <button class="notify-btn text-muted" onclick="toggleAlert(event, this)">
+                                        ${schedule.alertEnabled ? "🔔 알림 켜짐" : "🔕 알림 꺼짐"}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        function toggleAlert(event, btnElement) 
+        {
+            event.stopPropagation(); 
+            const isEnabled = btnElement.innerText.includes("켜짐");
+            btnElement.innerText = isEnabled ? "🔕 알림 꺼짐" : "🔔 알림 켜짐";
+            alert(isEnabled ? "알림이 해제되었습니다." : "알림이 설정되었습니다.");
+        }
+
+        function calculateDDay(deadlineStr) 
+        {
+            const today = new Date();
+            const target = new Date(deadlineStr);
+            const diff = Math.floor((new Date(target.getFullYear(), target.getMonth(), target.getDate()) - 
+                                    new Date(today.getFullYear(), today.getMonth(), today.getDate())) / (1000 * 60 * 60 * 24));
+            return diff;
+        }
+    </script>
+</body>
+</html>
