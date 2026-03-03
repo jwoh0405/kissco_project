@@ -1,33 +1,32 @@
 package com.example.demo.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "MEMBER")
 public class Member {
 
     @Id
-    @Column(name = "ID")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+            generator = "member_seq_gen")
+    @SequenceGenerator(
+            name = "member_seq_gen",
+            sequenceName = "MEMBER_SEQ",
+            allocationSize = 1)
+    private Long memberNo;
 
-    @Column(name = "EMAIL")
+    @Column(unique = true)
     private String email;
 
-    @Column(name = "PASSWORD")
     private String password;
 
-    @Column(name = "NAME")
     private String name;
 
-	public String getId() {
-		return id;
+	public Long getMemberNo() {
+		return memberNo;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setMemberNo(Long memberNo) {
+		this.memberNo = memberNo;
 	}
 
 	public String getEmail() {

@@ -12,14 +12,13 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
 
-    //생성자
     public ScheduleService(ScheduleRepository scheduleRepository) {
         this.scheduleRepository = scheduleRepository;
     }
 
-    //전체 조회(회원 기준)
-    public List<Schedule> getSchedulesByMember(String memberId) {
-        return scheduleRepository.findByMemberId(memberId);
+    //전체 조회
+    public List<Schedule> getSchedulesByMember(Long memberNo) {
+        return scheduleRepository.findByMemberNo(memberNo);
     }
 
     //등록
@@ -28,7 +27,7 @@ public class ScheduleService {
     }
 
     //삭제
-    public void deleteSchedule(Long id, String memberId) {
+    public void deleteSchedule(Long id, Long memberNo) {
 
         Schedule schedule = scheduleRepository.findById(id).orElse(null);
 
@@ -36,20 +35,20 @@ public class ScheduleService {
             throw new RuntimeException("일정 없음");
         }
 
-        if (!schedule.getMemberId().equals(memberId)) {
+        if (!schedule.getMemberNo().equals(memberNo)) {
             throw new RuntimeException("권한 없음");
         }
 
         scheduleRepository.deleteById(id);
     }
-    
+
     //단건 조회
     public Schedule getSchedule(Long id) {
         return scheduleRepository.findById(id).orElse(null);
     }
-    
+
     //수정
-    public Schedule updateSchedule(Long id, Schedule updated, String memberId) {
+    public Schedule updateSchedule(Long id, Schedule updated, Long memberNo) {
 
         Schedule schedule = scheduleRepository.findById(id).orElse(null);
 
@@ -58,7 +57,7 @@ public class ScheduleService {
         }
 
         //내 일정인지 확인
-        if (!schedule.getMemberId().equals(memberId)) {
+        if (!schedule.getMemberNo().equals(memberNo)) {
             throw new RuntimeException("권한 없음");
         }
 

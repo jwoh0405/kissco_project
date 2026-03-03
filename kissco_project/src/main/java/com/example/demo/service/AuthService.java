@@ -14,24 +14,18 @@ public class AuthService {
         this.memberRepository = memberRepository;
     }
 
-    public Member login(String id, String password) {
+    public Member login(String email, String password) {
 
-        //DB에서 회원 조회
         Member member = memberRepository
-                .findById(id)
+                .findByEmail(email)
                 .orElse(null);
 
-        //회원 없으면 실패
-        if (member == null) {
-            return null;
+        if (member != null &&
+            member.getPassword().equals(password)) {
+
+            return member;
         }
 
-        //비밀번호 다르면 실패
-        if (!member.getPassword().equals(password)) {
-            return null;
-        }
-
-        //성공
-        return member;
+        return null;
     }
 }

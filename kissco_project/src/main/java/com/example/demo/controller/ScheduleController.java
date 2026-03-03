@@ -3,7 +3,10 @@ package com.example.demo.controller;
 import java.util.List;
 
 import jakarta.servlet.http.HttpSession;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.model.Schedule;
 import com.example.demo.service.ScheduleService;
@@ -27,9 +30,13 @@ public class ScheduleController {
     @GetMapping
     public List<Schedule> getAll(HttpSession session) {
 
-        String memberId = (String) session.getAttribute("loginUser");
+        Long memberNo = (Long) session.getAttribute("loginUser");
 
-        return scheduleService.getSchedulesByMember(memberId);
+        if (memberNo == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "login required");
+        }
+
+        return scheduleService.getSchedulesByMember(memberNo);
     }
 
     //등록
@@ -37,9 +44,13 @@ public class ScheduleController {
     public String create(@RequestBody Schedule schedule,
                          HttpSession session) {
 
-        String memberId = (String) session.getAttribute("loginUser");
+        Long memberNo = (Long) session.getAttribute("loginUser");
 
-        schedule.setMemberId(memberId);
+        if (memberNo == null) {
+            return "login required";
+        }
+
+        schedule.setMemberNo(memberNo);
 
         scheduleService.createSchedule(schedule);
 
@@ -51,36 +62,36 @@ public class ScheduleController {
     public String delete(@PathVariable Long id,
                          HttpSession session) {
 
-        String memberId = (String) session.getAttribute("loginUser");
+        Long memberNo = (Long) session.getAttribute("loginUser");
 
-        if (memberId == null) {
+        if (memberNo == null) {
             return "login required";
         }
 
-        scheduleService.deleteSchedule(id, memberId);
+        scheduleService.deleteSchedule(id, memberNo);
 
         return "success";
     }
-    
+
     //단건 조회
     @GetMapping("/{id}")
     public Schedule getOne(@PathVariable Long id) {
         return scheduleService.getSchedule(id);
     }
-    
+
     //수정
     @PutMapping("/{id}")
     public String update(@PathVariable Long id,
                          @RequestBody Schedule schedule,
                          HttpSession session) {
 
-        String memberId = (String) session.getAttribute("loginUser");
+        Long memberNo = (Long) session.getAttribute("loginUser");
 
-        if (memberId == null) {
+        if (memberNo == null) {
             return "login required";
         }
 
-        scheduleService.updateSchedule(id, schedule, memberId);
+        scheduleService.updateSchedule(id, schedule, memberNo);
 
         return "success";
     }

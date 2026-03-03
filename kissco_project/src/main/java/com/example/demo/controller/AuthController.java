@@ -18,22 +18,22 @@ public class AuthController {
 
     @PostMapping("/login")
     public String login(@RequestBody Member request,
-                        HttpSession session) {
+            HttpSession session) {
 
-        Member member = authService.login(
-                request.getId(),
-                request.getPassword()
-        );
-
-        if (member == null) {
-            return "fail";
-        }
-
-        // 세션에 로그인 정보 저장
-        session.setAttribute("loginUser", member.getId());
-
-        return "success";
-    }
+		Member member = authService.login(
+		    request.getEmail(),        
+		    request.getPassword()
+		);
+		
+		if (member == null) {
+		return "fail";
+		}
+		
+		//세션에 memberNo 저장
+		session.setAttribute("loginUser", member.getMemberNo());
+		
+		return "success";
+	}
 
     @PostMapping("/logout")
     public String logout(HttpSession session) {

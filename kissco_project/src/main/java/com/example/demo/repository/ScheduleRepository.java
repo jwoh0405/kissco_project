@@ -6,5 +6,5 @@ import com.example.demo.model.Schedule;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
-    List<Schedule> findByMemberId(String memberId);
+	List<Schedule> findByMemberNo(Long memberNo);
 }

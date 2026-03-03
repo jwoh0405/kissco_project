@@ -13,10 +13,14 @@ public class MemberService {
     public MemberService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
     }
+    
+    public void register(Member member) {
+        memberRepository.save(member);
+    }
 
-    public void updateMember(String id, Member updated) {
+    public void updateMember(Long memberNo, Member updated) {
 
-        Member member = memberRepository.findById(id).orElse(null);
+        Member member = memberRepository.findById(memberNo).orElse(null);
 
         if (member == null) {
             throw new RuntimeException("회원 없음");

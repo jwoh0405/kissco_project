@@ -15,18 +15,27 @@ public class MemberController {
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
     }
+    
+    @PostMapping
+    public String register(@RequestBody Member member) {
+
+        memberService.register(member);
+
+        return "success";
+    }
+    
 
     @PutMapping("/me")
     public String updateMe(@RequestBody Member member,
                            HttpSession session) {
 
-        String loginUser = (String) session.getAttribute("loginUser");
+        Long memberNo = (Long) session.getAttribute("loginUser");
 
-        if (loginUser == null) {
+        if (memberNo == null) {
             return "login required";
         }
 
-        memberService.updateMember(loginUser, member);
+        memberService.updateMember(memberNo, member);
 
         return "success";
     }
