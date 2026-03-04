@@ -20,6 +20,11 @@ public class ScheduleService {
     public List<Schedule> getSchedulesByMember(Long memberNo) {
         return scheduleRepository.findByMemberNo(memberNo);
     }
+    
+    // 전체 조회(알림 스케줄러용)
+    public List<Schedule> getAllSchedules() {
+        return scheduleRepository.findAll();
+    }
 
     //등록
     public Schedule createSchedule(Schedule schedule) {
