@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body {
+        body 
+        {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,7 +21,8 @@
             overflow: hidden; 
         }
 
-        .title-container {
+        .title-container 
+        {
             font-size: 3rem;
             font-weight: 800;
             color: #2c3e50;
@@ -29,11 +31,13 @@
             text-align: center;
             z-index: 2;
         }
-        .title-container span {
+        .title-container span 
+        {
             color: #3498db; 
         }
 
-        .login-form-wrapper {
+        .login-form-wrapper 
+        {
             width: 100%;
             max-width: 400px;
             opacity: 0;
@@ -42,18 +46,22 @@
             z-index: 1;
         }
 
-        .title-container.active {
+        .title-container.active 
+        {
             transform: translateY(-20px);
         }
-        .login-form-wrapper.active {
+        .login-form-wrapper.active 
+        {
             opacity: 1;
             transform: translateY(0);
         }
 
-        .password-container {
+        .password-container 
+        {
             position: relative;
         }
-        .toggle-pw {
+        .toggle-pw 
+        {
             position: absolute;
             right: 15px;
             top: 50%;
@@ -98,6 +106,7 @@
     </div>
 
     <script>
+        // 1. 스플래시 애니메이션 실행
         window.onload = function() 
         {
             setTimeout(function() 
@@ -107,17 +116,65 @@
             }, 1000); 
         };
 
-        function handleLogin() 
-        {
-            const email = document.getElementById("emailInput").value;
-            alert(email + "님, 환영합니다!");
-            location.href = 'dashboard.html';
-        }
-
+        // 2. 비밀번호 보이기/숨기기 토글 함수
         function togglePassword() 
         {
             const pwInput = document.getElementById("passwordInput");
-            pwInput.type = pwInput.type === "password" ? "text" : "password";
+            const toggleIcon = document.getElementById("toggleIcon");
+            
+            if (pwInput.type === "password") 
+            {
+                pwInput.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash");
+            } 
+            else 
+            {
+                pwInput.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
+
+        // 3. 🌟 로그인 처리 로직 (REST API 통신)
+        function handleLogin() 
+        {
+            const email = document.getElementById("emailInput").value;
+            const password = document.getElementById("passwordInput").value;
+
+            const requestData = 
+            {
+                email: email,
+                password: password
+            };
+
+            fetch('/api/login', 
+            {
+                method: 'POST',
+                headers: 
+                {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => 
+            {
+                if (response.ok) 
+                {
+                    // 서버가 성공(200 OK)을 보내면 대시보드로 이동
+                    location.href = 'dashboard.html';
+                } 
+                else 
+                {
+                    // 인증 실패 시 사용자 알림
+                    alert("이메일 또는 비밀번호가 일치하지 않습니다.");
+                }
+            })
+            .catch(error => 
+            {
+                console.error("로그인 서버 통신 에러:", error);
+                alert("서버 연결에 실패했습니다. 네트워크 상태를 확인해주세요.");
+            });
         }
     </script>
 </body>

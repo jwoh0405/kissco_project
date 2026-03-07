@@ -9,26 +9,63 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        body 
+        { 
+            font-family: 'Arial', sans-serif; 
+            background-color: #f4f6f9; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px; 
+        }
         
-        .profile-container { width: 100%; max-width: 480px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .profile-container 
+        { 
+            width: 100%; 
+            max-width: 480px; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
         
-        .avatar { 
-            width: 90px; height: 90px; background-color: #3498db; color: white; 
-            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
-            font-size: 2.5rem; font-weight: bold; margin: 0 auto; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        .avatar 
+        { 
+            width: 90px; 
+            height: 90px; 
+            background-color: #3498db; 
+            color: white; 
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 2.5rem; 
+            font-weight: bold; 
+            margin: 0 auto; 
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
         }
 
-        /* 이메일 입력창 readonly 상태일 때 배경색 처리 */
-        input[readonly] { background-color: #ecf0f1 !important; cursor: not-allowed; }
-
-        /* 비밀번호 눈알 아이콘 위치 조정 */
-        .password-container { position: relative; }
-        .toggle-pw { 
-            position: absolute; right: 15px; top: 50%; transform: translateY(-50%); 
-            cursor: pointer; color: #7f8c8d; font-size: 1.1rem; 
+        input[readonly] 
+        { 
+            background-color: #ecf0f1 !important; 
+            cursor: not-allowed; 
         }
-        .toggle-pw:hover { color: #2c3e50; }
+
+        .password-container 
+        { 
+            position: relative; 
+        }
+
+        .toggle-pw 
+        { 
+            position: absolute; 
+            right: 15px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            cursor: pointer; 
+            color: #7f8c8d; 
+        }
     </style>
 </head>
 <body>
@@ -81,33 +118,97 @@
     </div>
 
     <script>
+        // 아바타 실시간 업데이트
+        document.getElementById('nameInput').addEventListener('input', function(e) 
+        {
+            const firstLetter = e.target.value.charAt(0) || "?";
+            document.getElementById('profileAvatar').innerText = firstLetter;
+        });
+
+        // 이메일 수정 모드 토글
         function toggleEmailEdit() 
         {
-            const input = document.getElementById("emailInput");
-            const isReadonly = input.hasAttribute("readonly");
-            
-            if (isReadonly) 
+            const emailInput = document.getElementById("emailInput");
+            const editBtn = document.getElementById("emailEditBtn");
+            const helpText = document.getElementById("emailHelpText");
+
+            if (emailInput.hasAttribute("readonly")) 
             {
-                input.removeAttribute("readonly");
-                input.focus();
+                emailInput.removeAttribute("readonly");
+                emailInput.focus();
+                editBtn.textContent = "취소";
+                editBtn.classList.replace("btn-outline-secondary", "btn-outline-danger");
+                helpText.style.display = "block";
             } 
             else 
             {
-                input.setAttribute("readonly", true);
+                emailInput.setAttribute("readonly", true);
+                editBtn.textContent = "변경";
+                editBtn.classList.replace("btn-outline-danger", "btn-outline-secondary");
+                helpText.style.display = "none";
             }
         }
 
-        function saveProfile() 
+        // 비밀번호 보기 토글
+        function togglePassword() 
         {
-            alert("개인정보가 수정되었습니다.");
-            location.href = 'dashboard.html';
+            const pwInput = document.getElementById("passwordInput");
+            const toggleIcon = document.getElementById("toggleIcon");
+            
+            if (pwInput.type === "password") 
+            {
+                pwInput.type = "text";
+                toggleIcon.classList.replace("fa-eye", "fa-eye-slash");
+            } 
+            else 
+            {
+                pwInput.type = "password";
+                toggleIcon.classList.replace("fa-eye-slash", "fa-eye");
+            }
         }
 
+        // 🌟 회원 정보 저장 (PUT)
+        function saveProfile() 
+        {
+            const requestData = 
+            {
+                name: document.getElementById('nameInput').value,
+                email: document.getElementById('emailInput').value,
+                password: document.getElementById('passwordInput').value || null
+            };
+
+            fetch('/api/members/me', 
+            {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => 
+            {
+                if (response.ok) 
+                {
+                    alert("회원 정보가 성공적으로 변경되었습니다.");
+                    location.href = 'dashboard.html';
+                }
+            })
+            .catch(error => console.error("통신 에러:", error));
+        }
+
+        // 🌟 로그아웃 (POST)
         function logout() 
         {
             if (confirm("정말로 로그아웃 하시겠습니까?")) 
             {
-                location.href = 'login.html';
+                fetch('/api/logout', { method: 'POST' })
+                    .then(response => 
+                    {
+                        if (response.ok) 
+                        {
+                            alert("안전하게 로그아웃 되었습니다.");
+                            location.href = 'login.html';
+                        }
+                    })
+                    .catch(error => console.error("로그아웃 에러:", error));
             }
         }
     </script>

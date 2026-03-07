@@ -9,22 +9,66 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #f4f6f9; }
-        
+        body 
+        { 
+            font-family: 'Arial', 
+            sans-serif; background-color: #f4f6f9; 
+        }
+
         /* 네비게이션 커스텀 */
-        .navbar-custom { background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .nav-link { font-weight: bold; color: #7f8c8d; transition: color 0.2s; }
-        .nav-link:hover { color: #3498db; }
-        .nav-link.active { color: #2980b9; border-bottom: 3px solid #2980b9; }
+        .navbar-custom 
+        { 
+            background: white; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        }
+        
+        .nav-link 
+        { 
+            font-weight: bold; 
+            color: #7f8c8d; 
+            transition: color 0.2s; 
+        }
+
+        .nav-link:hover 
+        { 
+            color: #3498db; 
+        }
+
+        .nav-link.active 
+        { 
+            color: #2980b9; 
+            border-bottom: 3px solid #2980b9; 
+        }
 
         /* 카드 디자인 커스텀 */
-        .schedule-card { 
-            background: white; border: none; border-left: 5px solid #bdc3c7; 
-            border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
+        .schedule-card 
+        { 
+            background: white; 
+            border: none; 
+            border-left: 5px solid #bdc3c7; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            cursor: pointer;
         }
-        .schedule-card:hover { transform: translateX(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        
+        .schedule-card:hover 
+        { 
+            transform: translateX(5px); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+        }
+
+        /* 🌟 완료된 일정 전용 스타일 (취소선, 투명도 등) */
+        .schedule-card.completed-schedule 
+        {
+            opacity: 0.6;
+            border-left-color: #bdc3c7 !important; /* 왼쪽 테두리 회색 통일 */
+        }
+        .completed-text 
+        {
+            text-decoration: line-through;
+            color: #bdc3c7 !important;
+        }
+
         /* 중요도별 왼쪽 테두리 색상 */
         .priority-5 { border-left-color: #e74c3c; } 
         .priority-4 { border-left-color: #f39c12; } 
@@ -32,21 +76,47 @@
         .priority-2 { border-left-color: #2ecc71; } 
         .priority-1 { border-left-color: #95a5a6; } 
 
-        .star-rating { color: #f1c40f; letter-spacing: 2px; font-size: 0.9rem; }
-        .d-day-badge { border-radius: 20px; font-weight: bold; padding: 5px 12px; }
+        .star-rating 
+        { 
+            color: #f1c40f; 
+            letter-spacing: 2px; 
+            font-size: 0.9rem; 
+        }
+        .d-day-badge 
+        { 
+            border-radius: 20px; 
+            font-weight: bold; 
+            padding: 5px 12px; 
+        }
         
         /* 알림 아이콘 버튼화 (이벤트 버블링 차단용) */
-        .notify-btn {
-            background: none; border: none; font-size: 1.1rem; cursor: pointer;
-            padding: 5px; border-radius: 50%; transition: background 0.2s;
+        .notify-btn 
+        {
+            background: none; 
+            border: none; 
+            font-size: 1.1rem; 
+            cursor: pointer;
+            padding: 5px; 
+            border-radius: 50%; 
+            transition: background 0.2s;
         }
-        .notify-btn:hover { background: #f1f2f6; }
+        .notify-btn:hover 
+        { 
+            background: #f1f2f6; 
+        }
 
         /* 달력 플레이스홀더 */
-        .calendar-placeholder { 
-            background: white; border: 3px dashed #bdc3c7; border-radius: 10px; 
-            min-height: 500px; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; color: #7f8c8d; 
+        .calendar-placeholder 
+        { 
+            background: white; 
+            border: 3px dashed #bdc3c7; 
+            border-radius: 10px; 
+            min-height: 500px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            color: #7f8c8d; 
         }
     </style>
 </head>
@@ -65,7 +135,7 @@
                 </ul>
                 <div class="d-flex">
                     <button class="btn btn-light rounded-pill fw-bold border" onclick="location.href='profile.html'">
-                        👤 노경식 님 (계정관리)
+                        👤 <span id="userNameDisplay">사용자</span> 님 (계정관리)
                     </button>
                 </div>
             </div>
@@ -95,29 +165,48 @@
     </div>
 
     <script>
-        const scheduleData = [
-        {
-            "id": 1,
-            "title": "일본 비자 및 재류자격 서류 제출",
-            "content": "주민표 및 사진 2장 지참할 것",
-            "deadline": "2026-02-20T14:00:00",
-            "importance": 5,
-            "alertEnabled": true
-        },
-        {
-            "id": 2,
-            "title": "팀 프로젝트 1주차 PPT 완성",
-            "content": "시연용 GIF 파일 삽입하기",
-            "deadline": "2026-02-21T18:00:00",
-            "importance": 4,
-            "alertEnabled": false
-        }];
+        let calendar; 
 
         document.addEventListener("DOMContentLoaded", function() 
         {
-            renderSchedules(scheduleData); 
+            // 1. 서버로부터 스케줄 목록 요청
+            fetch('/api/schedules')
+                .then(response => response.json())
+                .then(data => 
+                {
+                    // 좌측 리스트 렌더링
+                    renderSchedules(data); 
+
+                    // 우측 달력 이벤트 데이터 주입
+                    const calendarEvents = data.map(schedule => ({
+                        id: schedule.id,
+                        title: schedule.title,
+                        start: schedule.deadline,
+                        // 완료된 일정은 달력에서도 회색으로 표시
+                        color: schedule.isCompleted ? '#bdc3c7' : (schedule.importance >= 4 ? '#e74c3c' : '#3498db')
+                    }));
+                    
+                    // 달력 객체에 데이터 직접 반영
+                    if(calendar) calendar.addEventSource(calendarEvents);
+                })
+                .catch(error => console.error("데이터 로드 실패:", error));
+
+                fetch('/api/members/me')
+                .then(response => response.json())
+                .then(user => 
+                {
+                    if (user.name) 
+                    {
+                        document.getElementById('userNameDisplay').innerText = user.name;
+                    }
+                })
+                .catch(error => 
+                {
+                    console.error("사용자 정보를 불러올 수 없습니다:", error);
+                });
         });
 
+        //리스트 렌더링: JSON 데이터를 받아 HTML 카드로 변환
         function renderSchedules(data) 
         {
             const container = document.getElementById('scheduleListContainer');
@@ -128,46 +217,79 @@
                 const stars = '⭐'.repeat(schedule.importance);
                 const dDayNum = calculateDDay(schedule.deadline);
                 
-                let dDayText = dDayNum === 0 ? "D-Day" : (dDayNum > 0 ? `D-${dDayNum}` : `D+${Math.abs(dDayNum)}`);
-                let dDayColor = dDayNum <= 0 ? "bg-danger" : (dDayNum <= 3 ? "bg-warning text-dark" : "bg-primary");
+                // 🌟 완료 여부에 따른 디자인 로직 분기
+                let dDayText = "";
+                let dDayColor = "";
+                let completedCardClass = "";
+                let completedTextClass = "";
+
+                if (schedule.isCompleted) 
+                {
+                    dDayText = "완료됨";
+                    dDayColor = "bg-secondary";
+                    completedCardClass = "completed-schedule"; // 카드 투명도 및 선 색상 변경
+                    completedTextClass = "completed-text";     // 텍스트 취소선 적용
+                } 
+                else 
+                {
+                    dDayText = dDayNum === 0 ? "D-Day" : (dDayNum > 0 ? `D-${dDayNum}` : `D+${Math.abs(dDayNum)}`);
+                    dDayColor = dDayNum <= 0 ? "bg-danger" : (dDayNum <= 3 ? "bg-warning text-dark" : "bg-primary");
+                }
+
+                const alertIcon = schedule.alertEnabled ? "🔔 알림 켜짐" : "🔕 알림 꺼짐";
 
                 const cardHTML = `
-                    <div class="schedule-card priority-${schedule.importance} p-3 shadow-sm mb-2" onclick="location.href='input.html?id=${schedule.id}'">
+                    <div class="schedule-card priority-${schedule.importance} ${completedCardClass} p-3 shadow-sm mb-2" onclick="location.href='input.html?id=${schedule.id}'">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="card-info">
-                                <div class="star-rating mb-1">${stars}</div>
-                                <h5 class="fw-bold mb-1 text-dark">${schedule.title}</h5>
-                                <div class="text-muted small">${schedule.deadline.replace('T', ' ')} | 📝 ${schedule.content}</div>
+                                <div class="star-rating mb-1 ${completedTextClass}">${stars}</div>
+                                <h5 class="fw-bold mb-1 text-dark ${completedTextClass}">${schedule.title}</h5>
+                                <div class="text-muted small ${completedTextClass}">
+                                    <i class="fa-regular fa-clock me-1"></i>${schedule.deadline.replace('T', ' ')}
+                                    <span class="ms-2">📝 ${schedule.content}</span>
+                                </div>
                             </div>
                             <div class="card-action text-end">
                                 <span class="badge ${dDayColor} d-day-badge mb-2 fs-6">${dDayText}</span>
                                 <div>
-                                    <button class="notify-btn text-muted" onclick="toggleAlert(event, this)">
-                                        ${schedule.alertEnabled ? "🔔 알림 켜짐" : "🔕 알림 꺼짐"}
+                                    <button class="notify-btn text-muted" onclick="toggleAlert(event, ${schedule.id}, this)">
+                                        ${alertIcon}
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    </div>`;
+                    </div>
+                `;
                 container.innerHTML += cardHTML;
             });
         }
 
-        function toggleAlert(event, btnElement) 
+        //알림 토글: 서버에 상태 변경(PATCH) 요청
+        function toggleAlert(event, id, btnElement) 
         {
             event.stopPropagation(); 
             const isEnabled = btnElement.innerText.includes("켜짐");
-            btnElement.innerText = isEnabled ? "🔕 알림 꺼짐" : "🔔 알림 켜짐";
-            alert(isEnabled ? "알림이 해제되었습니다." : "알림이 설정되었습니다.");
+            const nextStatus = !isEnabled;
+
+            btnElement.innerText = nextStatus ? "🔔 알림 켜짐" : "🔕 알림 꺼짐";
+
+            fetch(`/api/schedules/${id}/alert`, 
+            {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ alertEnabled: nextStatus })
+            });
         }
 
+        //D-Day 계산
         function calculateDDay(deadlineStr) 
         {
             const today = new Date();
             const target = new Date(deadlineStr);
-            const diff = Math.floor((new Date(target.getFullYear(), target.getMonth(), target.getDate()) - 
-                                    new Date(today.getFullYear(), today.getMonth(), today.getDate())) / (1000 * 60 * 60 * 24));
-            return diff;
+            const todayNoon = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const targetNoon = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+            
+            return Math.floor((targetNoon - todayNoon) / (1000 * 60 * 60 * 24));
         }
     </script>
 </body>

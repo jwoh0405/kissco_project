@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body {
+        body 
+        {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,41 +21,52 @@
             padding: 20px;
         }
 
-        /* 폼 애니메이션 (스플래시 없이 부드럽게 등장) */
-        .signup-form-wrapper {
+        .signup-form-wrapper 
+        {
             width: 100%;
             max-width: 450px;
             animation: slideUpFade 0.6s ease-out forwards;
         }
 
-        @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideUpFade 
+        {
+            from 
+            { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to 
+            { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
         }
 
-        .form-header {
+        .form-header 
+        {
             text-align: center;
             margin-bottom: 30px;
         }
-        .form-header h2 {
+
+        .form-header h2 
+        {
             font-weight: 800;
             color: #2c3e50;
         }
 
-        .password-container {
+        .password-container 
+        {
             position: relative;
         }
-        .toggle-pw {
+
+        .toggle-pw 
+        {
             position: absolute;
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
             color: #7f8c8d;
-            transition: color 0.2s;
-        }
-        .toggle-pw:hover {
-            color: #2c3e50;
         }
     </style>
 </head>
@@ -78,7 +90,7 @@
 
                     <div class="mb-3">
                         <label for="emailInput" class="form-label text-secondary fw-bold">이메일 (Email)</label>
-                        <input type="email" class="form-control form-control-lg" id="emailInput" placeholder="알림을 받을 이메일 주소" required>
+                        <input type="email" class="form-control form-control-lg" id="emailInput" placeholder="sample@kissco.co.jp" required>
                     </div>
 
                     <div class="mb-3">
@@ -92,7 +104,7 @@
                     <div class="mb-4">
                         <label for="passwordConfirmInput" class="form-label text-secondary fw-bold">비밀번호 확인</label>
                         <div class="password-container">
-                            <input type="password" class="form-control form-control-lg" id="passwordConfirmInput" placeholder="비밀번호를 한 번 더 입력하세요" required>
+                            <input type="password" class="form-control form-control-lg" id="passwordConfirmInput" placeholder="비밀번호 확인" required>
                             <i class="fa-regular fa-eye toggle-pw" onclick="togglePassword('passwordConfirmInput', this)"></i>
                         </div>
                     </div>
@@ -109,25 +121,72 @@
     </div>
 
     <script>
+        // 1. 비밀번호 보기/숨기기 토글
+        function togglePassword(inputId, iconElement) 
+        {
+            const pwInput = document.getElementById(inputId);
+            
+            if (pwInput.type === "password") 
+            {
+                pwInput.type = "text";
+                iconElement.classList.replace("fa-eye", "fa-eye-slash");
+            } 
+            else 
+            {
+                pwInput.type = "password";
+                iconElement.classList.replace("fa-eye-slash", "fa-eye");
+            }
+        }
+
+        // 2. 🌟 회원가입 실전 로직 (API 통신)
         function handleSignup() 
         {
-            const pw = document.getElementById("passwordInput").value;
-            const confirm = document.getElementById("passwordConfirmInput").value;
+            const name = document.getElementById("nameInput").value;
+            const email = document.getElementById("emailInput").value;
+            const password = document.getElementById("passwordInput").value;
+            const passwordConfirm = document.getElementById("passwordConfirmInput").value;
 
-            if (pw !== confirm) 
+            // 비밀번호 일치 확인 (Front-end Validation)
+            if (password !== passwordConfirm) 
             {
-                alert("비밀번호가 일치하지 않습니다!");
+                alert("비밀번호가 일치하지 않습니다. 다시 확인해주세요.");
+                document.getElementById("passwordConfirmInput").focus();
                 return;
             }
 
-            alert("회원가입이 완료되었습니다. 로그인 해주세요.");
-            location.href = 'login.html';
-        }
+            const requestData = 
+            {
+                name: name,
+                email: email,
+                password: password
+            };
 
-        function togglePassword(id, icon) 
-        {
-            const input = document.getElementById(id);
-            input.type = input.type === "password" ? "text" : "password";
+            fetch('/api/members', 
+            { 
+                method: 'POST',
+                headers: 
+                {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => 
+            {
+                if (response.ok) 
+                {
+                    alert(`${name}님, 환영합니다! 가입이 완료되었습니다.`);
+                    location.href = 'login.html';
+                } 
+                else 
+                {
+                    alert("회원가입에 실패했습니다. 이미 가입된 이메일인지 확인해주세요.");
+                }
+            })
+            .catch(error => 
+            {
+                console.error("회원가입 서버 통신 에러:", error);
+                alert("서버 연결에 실패했습니다.");
+            });
         }
     </script>
 </body>
