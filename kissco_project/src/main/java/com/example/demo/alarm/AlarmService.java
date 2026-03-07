@@ -90,13 +90,13 @@ public class AlarmService {
             System.out.println("[ALARM] ✅ 메일 발송 완료: " + key);
 
             // DB에 보냄 처리 (IS_NOTIFIED = 'Y')
-            try {
-                s.setIsNotified("Y");
-                scheduleService.updateSchedule(s.getId(), s, s.getMemberNo()); // 권한체크 때문에 memberNo 넣음
-                System.out.println("[ALARM] ✅ DB 업데이트 완료(IS_NOTIFIED=Y): id=" + s.getId());
-            } catch (Exception e) {
-                System.out.println("[ALARM] ⚠ DB 업데이트 실패(그래도 메모리로 중복 방지됨): " + e.getMessage());
-            }
+//            try {
+//                s.setIsNotified("Y");
+//                scheduleService.updateSchedule(s.getId(), s, s.getMemberNo()); // 권한체크 때문에 memberNo 넣음
+//                System.out.println("[ALARM] ✅ DB 업데이트 완료(IS_NOTIFIED=Y): id=" + s.getId());
+//            } catch (Exception e) {
+//                System.out.println("[ALARM] ⚠ DB 업데이트 실패(그래도 메모리로 중복 방지됨): " + e.getMessage());
+//            }
         }
     }
 }

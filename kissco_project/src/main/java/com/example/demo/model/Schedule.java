@@ -31,88 +31,92 @@ public class Schedule {
     private Integer importance;
 
     @Column(name = "ALERT_ENABLED")
-    private String alertEnabled;
+    private Boolean alertEnabled;
 
     @Column(name = "IS_NOTIFIED")
-    private String isNotified;
+    private Boolean isNotified = false;
 
     @Column(name = "IS_COMPLETED")
-    private String isCompleted;
+    private Boolean isCompleted = false;
 
     //FK 컬럼
     @Column(name = "MEMBER_NO")
     private Long memberNo;
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public LocalDateTime getDeadline() {
+		return deadline;
+	}
+
+	public void setDeadline(LocalDateTime deadline) {
+		this.deadline = deadline;
+	}
+
+	public Integer getImportance() {
+		return importance;
+	}
+
+	public void setImportance(Integer importance) {
+		this.importance = importance;
+	}
+
+	public Boolean getAlertEnabled() {
+		return alertEnabled;
+	}
+
+	public void setAlertEnabled(Boolean alertEnabled) {
+		this.alertEnabled = alertEnabled;
+	}
+
+	public Boolean getIsNotified() {
+		return isNotified;
+	}
+
+	public void setIsNotified(Boolean isNotified) {
+		this.isNotified = isNotified;
+	}
+
+	public Boolean getIsCompleted() {
+		return isCompleted;
+	}
+
+	public void setIsCompleted(Boolean isCompleted) {
+		this.isCompleted = isCompleted;
+	}
+
+	public Long getMemberNo() {
+		return memberNo;
+	}
+
+	public void setMemberNo(Long memberNo) {
+		this.memberNo = memberNo;
+	}
+
+	
+
     
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public LocalDateTime getDeadline() {
-        return deadline;
-    }
-
-    public void setDeadline(LocalDateTime deadline) {
-        this.deadline = deadline;
-    }
-
-    public Integer getImportance() {
-        return importance;
-    }
-
-    public void setImportance(Integer importance) {
-        this.importance = importance;
-    }
-
-    public String getAlertEnabled() {
-        return alertEnabled;
-    }
-
-    public void setAlertEnabled(String alertEnabled) {
-        this.alertEnabled = alertEnabled;
-    }
-
-    public String getIsNotified() {
-        return isNotified;
-    }
-
-    public void setIsNotified(String isNotified) {
-        this.isNotified = isNotified;
-    }
-
-    public String getIsCompleted() {
-        return isCompleted;
-    }
-
-    public void setIsCompleted(String isCompleted) {
-        this.isCompleted = isCompleted;
-    }
-
-    public Long getMemberNo() {
-        return memberNo;
-    }
-
-    public void setMemberNo(Long memberNo) {
-        this.memberNo = memberNo;
-    }
+    
 }

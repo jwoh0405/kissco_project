@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import jakarta.servlet.http.HttpSession;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.service.AuthService;
@@ -17,23 +19,21 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody Member request,
-            HttpSession session) {
+    public ResponseEntity<?> login(@RequestBody Member request, HttpSession session) {
 
-		Member member = authService.login(
-		    request.getEmail(),        
-		    request.getPassword()
-		);
-		
-		if (member == null) {
-		return "fail";
-		}
-		
-		//세션에 memberNo 저장
-		session.setAttribute("loginUser", member.getMemberNo());
-		
-		return "success";
-	}
+        Member member = authService.login(
+            request.getEmail(),
+            request.getPassword()
+        );
+
+        if (member == null) {
+            return ResponseEntity.status(401).body("fail");
+        }
+
+        session.setAttribute("loginUser", member.getMemberNo());
+
+        return ResponseEntity.ok("success");
+    }
 
     @PostMapping("/logout")
     public String logout(HttpSession session) {

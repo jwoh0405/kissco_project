@@ -17,6 +17,12 @@ public class MemberService {
     public void register(Member member) {
         memberRepository.save(member);
     }
+    
+    public Member findById(Long memberNo){
+
+        return memberRepository.findById(memberNo).orElse(null);
+
+    }
 
     public void updateMember(Long memberNo, Member updated) {
 
@@ -27,8 +33,12 @@ public class MemberService {
         }
 
         member.setEmail(updated.getEmail());
-        member.setPassword(updated.getPassword());
         member.setName(updated.getName());
+
+        // 비밀번호가 입력된 경우에만 변경
+        if(updated.getPassword() != null && !updated.getPassword().isEmpty()){
+            member.setPassword(updated.getPassword());
+        }
 
         memberRepository.save(member);
     }

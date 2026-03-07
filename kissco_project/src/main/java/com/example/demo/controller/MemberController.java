@@ -24,6 +24,20 @@ public class MemberController {
         return "success";
     }
     
+    
+    
+    @GetMapping("/me")
+    public Member getMyInfo(HttpSession session) {
+
+        Long memberNo = (Long) session.getAttribute("loginUser");
+
+        if(memberNo == null){
+            return null;
+        }
+
+        return memberService.findById(memberNo);
+    }
+    
 
     @PutMapping("/me")
     public String updateMe(@RequestBody Member member,
