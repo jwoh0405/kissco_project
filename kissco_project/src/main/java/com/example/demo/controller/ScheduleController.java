@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -75,8 +76,16 @@ public class ScheduleController {
 
     //단건 조회
     @GetMapping("/{id}")
-    public Schedule getOne(@PathVariable Long id) {
-        return scheduleService.getSchedule(id);
+    public Schedule getOne(@PathVariable Long id,
+                           HttpSession session) {
+
+        Long memberNo = (Long) session.getAttribute("loginUser");
+
+        if(memberNo == null){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "login required");
+        }
+
+        return scheduleService.getSchedule(id, memberNo);
     }
 
     //수정
@@ -92,6 +101,25 @@ public class ScheduleController {
         }
 
         scheduleService.updateSchedule(id, schedule, memberNo);
+
+        return "success";
+    }
+    
+    //토글
+    @PatchMapping("/{id}/alert")
+    public String updateAlert(@PathVariable Long id,
+                              @RequestBody Map<String, Boolean> request,
+                              HttpSession session) {
+
+        Long memberNo = (Long) session.getAttribute("loginUser");
+
+        if(memberNo == null){
+            return "login required";
+        }
+
+        Boolean alertEnabled = request.get("alertEnabled");
+
+        scheduleService.updateAlert(id, alertEnabled, memberNo);
 
         return "success";
     }

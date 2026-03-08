@@ -1,5 +1,8 @@
 package com.example.demo.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -17,8 +20,38 @@ public class ScheduleService {
     }
 
     //전체 조회
-    public List<Schedule> getSchedulesByMember(Long memberNo) {
-        return scheduleRepository.findByMemberNo(memberNo);
+    public List<Schedule> getSchedulesByMember(Long memberNo){
+
+        List<Schedule> schedules = scheduleRepository.findByMemberNo(memberNo);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Schedule> active = new ArrayList<>();
+        List<Schedule> past = new ArrayList<>();
+
+        for(Schedule s : schedules){
+
+            if(Boolean.TRUE.equals(s.getIsCompleted()) ||
+               (s.getDeadline() != null && s.getDeadline().isBefore(now))){
+
+                past.add(s);
+
+            } else {
+
+                active.add(s);
+            }
+        }
+
+        Comparator<Schedule> sortRule =
+                Comparator.comparing(Schedule::getDeadline)
+                          .thenComparing(Schedule::getImportance, Comparator.reverseOrder());
+
+        active.sort(sortRule);
+        past.sort(sortRule);
+
+        active.addAll(past);
+
+        return active;
     }
     
     // 전체 조회(알림 스케줄러용)
@@ -48,8 +81,20 @@ public class ScheduleService {
     }
 
     //단건 조회
-    public Schedule getSchedule(Long id) {
-        return scheduleRepository.findById(id).orElse(null);
+    public Schedule getSchedule(Long id, Long memberNo){
+
+        Schedule schedule = scheduleRepository.findById(id).orElse(null);
+
+        if(schedule == null){
+            throw new RuntimeException("schedule not found");
+        }
+
+        //내 일정인지 확인
+        if(!schedule.getMemberNo().equals(memberNo)){
+            throw new RuntimeException("권한 없음");
+        }
+
+        return schedule;
     }
 
     //수정
@@ -75,5 +120,24 @@ public class ScheduleService {
         schedule.setIsNotified(updated.getIsNotified());
 
         return scheduleRepository.save(schedule);
+    }
+    
+    //토글
+    public void updateAlert(Long id, Boolean alertEnabled, Long memberNo) {
+
+        Schedule schedule = scheduleRepository.findById(id).orElse(null);
+
+        if(schedule == null){
+            throw new RuntimeException("schedule not found");
+        }
+
+        //본인 스케줄인지 확인
+        if(!schedule.getMemberNo().equals(memberNo)){
+            throw new RuntimeException("권한 없음");
+        }
+
+        schedule.setAlertEnabled(alertEnabled);
+
+        scheduleRepository.save(schedule);
     }
 }
