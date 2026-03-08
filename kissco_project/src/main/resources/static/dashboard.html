@@ -67,6 +67,18 @@
             text-decoration: line-through;
             color: #bdc3c7 !important;
         }
+        
+        /* 🚨 기한 만료 전용 스타일 (붉은색 경고 느낌) */
+        .past-due-card 
+        {
+            background-color: #fff5f5; /* 아주 옅은 붉은 배경 */
+            border-left-color: #c0392b !important; /* 진한 붉은 테두리 */
+        }
+        .past-due-text 
+        {
+            color: #c0392b !important;
+            font-weight: bold;
+        }
 
         /* 중요도별 왼쪽 테두리 색상 */
         .priority-5 { border-left-color: #e74c3c; } 
@@ -145,7 +157,7 @@
         <div class="row g-5">
             
             <div class="col-lg-7">
-                <h5 class="fw-bold text-dark border-bottom pb-3 mb-4">📌 다가오는 주요 일정 <span class="text-muted fs-6 fw-normal">(중요도 및 마감일 순)</span></h5>
+                <h5 class="fw-bold text-dark border-bottom pb-3 mb-4">📌 다가오는 주요 일정 <span class="text-muted fs-6 fw-normal">(마감일 임박순 / 동일 시 중요도순)</span></h5>
                 
                 <div id="scheduleListContainer" class="d-flex flex-column gap-3">
                     </div>
@@ -188,7 +200,10 @@
                     }));
                     
                     // 달력 객체에 데이터 직접 반영
-                    if(calendar) calendar.addEventSource(calendarEvents);
+                    if(calendar) 
+                    {	
+                    	calendar.addEventSource(calendarEvents);
+                    }
                 })
                 .catch(error => console.error("데이터 로드 실패:", error));
 
@@ -221,34 +236,44 @@
                 const stars = '⭐'.repeat(schedule.importance);
                 const dDayNum = calculateDDay(schedule.deadline);
                 
-                // 🌟 완료 여부에 따른 디자인 로직 분기
+             	// 🌟 상태에 따른 디자인 로직 3분기
                 let dDayText = "";
                 let dDayColor = "";
-                let completedCardClass = "";
-                let completedTextClass = "";
+                let customCardClass = "";
+                let customTextClass = "";
 
-                if (schedule.isCompleted) 
+                if (schedule.isCompleted)
                 {
+                    // 1. 완료된 일정 (우선순위 1등)
                     dDayText = "완료됨";
                     dDayColor = "bg-secondary";
-                    completedCardClass = "completed-schedule"; // 카드 투명도 및 선 색상 변경
-                    completedTextClass = "completed-text";     // 텍스트 취소선 적용
+                    customCardClass = "completed-schedule"; 
+                    customTextClass = "completed-text";     
+                } 
+                else if (dDayNum < 0) 
+                {
+                    // 2. 🚨 기한이 지난 일정 (완료 안 했는데 날짜가 지남)
+                    dDayText = "기한 만료";
+                    dDayColor = "bg-dark"; // 검은색 뱃지로 눈에 띄게
+                    customCardClass = "past-due-card"; 
+                    customTextClass = "past-due-text";
                 } 
                 else 
                 {
-                    dDayText = dDayNum === 0 ? "D-Day" : (dDayNum > 0 ? `D-${dDayNum}` : `D+${Math.abs(dDayNum)}`);
-                    dDayColor = dDayNum <= 0 ? "bg-danger" : (dDayNum <= 3 ? "bg-warning text-dark" : "bg-primary");
+                    // 3. 정상 진행 중인 일정
+                    dDayText = dDayNum === 0 ? "D-Day" : `D-${dDayNum}`;
+                    dDayColor = dDayNum === 0 ? "bg-danger" : (dDayNum <= 3 ? "bg-warning text-dark" : "bg-primary");
                 }
 
                 const alertIcon = schedule.alertEnabled ? "🔔 알림 켜짐" : "🔕 알림 꺼짐";
 
                 const cardHTML = `
-                    <div class="schedule-card priority-${schedule.importance} ${completedCardClass} p-3 shadow-sm mb-2" onclick="location.href='input.html?id=${schedule.id}'">
+                    <div class="schedule-card priority-${schedule.importance} ${customCardClass} p-3 shadow-sm mb-2" onclick="location.href='input.html?id=${schedule.id}'">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="card-info">
-                                <div class="star-rating mb-1 ${completedTextClass}">${stars}</div>
-                                <h5 class="fw-bold mb-1 text-dark ${completedTextClass}">${schedule.title}</h5>
-                                <div class="text-muted small ${completedTextClass}">
+                                <div class="star-rating mb-1 ${customTextClass}">${stars}</div>
+                                <h5 class="fw-bold mb-1 text-dark ${customTextClass}">${schedule.title}</h5>
+                                <div class="text-muted small ${customTextClass}">
                                     <i class="fa-regular fa-clock me-1"></i>${schedule.deadline.replace('T', ' ')}
                                     <span class="ms-2">📝 ${schedule.content ? schedule.content : ""}</span>
                                 </div>
