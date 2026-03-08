@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Scheduler - 스케줄 관리</title>
+    <title>Smart Scheduler - 일정 관리</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -39,14 +39,14 @@
     <div class="form-container p-4 p-md-5">
         
         <div class="d-flex justify-content-between align-items-center border-bottom border-dark pb-3 mb-4">
-            <h3 class="fw-bold mb-0 text-dark" id="formTitle">✏️ 새 스케줄 추가</h3>
+            <h3 class="fw-bold mb-0 text-dark" id="formTitle">✏️ 새 일정 추가</h3>
             <button type="button" class="btn-close" aria-label="Close" onclick="location.href='dashboard.html'"></button>
         </div>
 
         <form id="scheduleForm" onsubmit="event.preventDefault(); handleSave();">
             
             <div class="mb-4">
-                <label for="titleInput" class="form-label fw-bold text-secondary">스케줄 제목</label>
+                <label for="titleInput" class="form-label fw-bold text-secondary">일정 제목</label>
                 <input type="text" class="form-control form-control-lg" id="titleInput" placeholder="어떤 일정이 있나요?" required>
             </div>
 
@@ -102,7 +102,7 @@
         {
             if (scheduleId) 
             {
-                document.getElementById('formTitle').innerText = "📝 스케줄 수정";
+                document.getElementById('formTitle').innerText = "📝 일정 수정";
                 document.getElementById('deleteBtn').classList.remove('d-none');
                 
                 // 🌟 수정 모드일 때만 완료 체크박스 그룹 표시
