@@ -11,19 +11,23 @@ import org.springframework.stereotype.Service;
 import com.example.demo.model.Schedule;
 import com.example.demo.service.MailService;
 import com.example.demo.service.ScheduleService;
+import com.example.demo.repository.MemberRepository;
+import com.example.demo.model.Member;
 
 @Service
 public class AlarmService {
 
     private final ScheduleService scheduleService;
     private final MailService mailService;
+    private final MemberRepository memberRepository;
 
     // DB 업데이트 실패 시 스팸 방지
     private final Set<String> sentKeys = ConcurrentHashMap.newKeySet();
 
-    public AlarmService(ScheduleService scheduleService, MailService mailService) {
+    public AlarmService(ScheduleService scheduleService, MailService mailService, MemberRepository memberRepository) {
         this.scheduleService = scheduleService;
         this.mailService = mailService;
+        this.memberRepository = memberRepository;
     }
 
     /**
@@ -52,13 +56,13 @@ public class AlarmService {
             // --------------------------------
 
             // 1) 알림 ON
-            if (!"Y".equals(s.getAlertEnabled())) continue;
+            if (Boolean.FALSE.equals(s.getAlertEnabled())) continue;
 
             // 2) 이미 보냄
-            if ("Y".equals(s.getIsNotified())) continue;
+            if (Boolean.TRUE.equals(s.getIsNotified())) continue;
 
             // 3) 완료 일정 제외
-            if ("Y".equals(s.getIsCompleted())) continue;
+            if (Boolean.TRUE.equals(s.getIsCompleted())) continue;
 
             // 4) deadline 체크
             LocalDateTime deadline = s.getDeadline();
@@ -86,17 +90,21 @@ public class AlarmService {
                     + "시간: " + deadline + "\n"
                     + "이 일정은 10분 후 시작됩니다.\n";
 
-            mailService.sendMail(testReceiverEmail, subject, body);
+            Member member = memberRepository.findById(s.getMemberNo()).orElse(null);
+            if (member == null) continue;
+            String email = member.getEmail();
+            mailService.sendMail(email, subject, body);
+            
             System.out.println("[ALARM] ✅ 메일 발송 완료: " + key);
 
             // DB에 보냄 처리 (IS_NOTIFIED = 'Y')
-//            try {
-//                s.setIsNotified("Y");
-//                scheduleService.updateSchedule(s.getId(), s, s.getMemberNo()); // 권한체크 때문에 memberNo 넣음
-//                System.out.println("[ALARM] ✅ DB 업데이트 완료(IS_NOTIFIED=Y): id=" + s.getId());
-//            } catch (Exception e) {
-//                System.out.println("[ALARM] ⚠ DB 업데이트 실패(그래도 메모리로 중복 방지됨): " + e.getMessage());
-//            }
+            try {
+                s.setIsNotified(true);
+                scheduleService.updateSchedule(s.getId(), s, s.getMemberNo()); // 권한체크 때문에 memberNo 넣음
+                System.out.println("[ALARM] DB 업데이트 완료(IS_NOTIFIED=Y): id=" + s.getId());
+            } catch (Exception e) {
+                System.out.println("[ALARM] DB 업데이트 실패(그래도 메모리로 중복 방지됨): " + e.getMessage());
+            }
         }
     }
 }
