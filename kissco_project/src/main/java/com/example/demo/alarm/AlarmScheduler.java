@@ -12,10 +12,9 @@ public class AlarmScheduler {
         this.alarmService = alarmService;
     }
 
-    // 1분마다 테스트
+    // 1분마다
     @Scheduled(cron = "0 * * * * *")
     public void run() {
-        String testReceiverEmail = "jwoh45@gmail.com"; // 일단 너한테만 오게(내일 테스트용)
-        alarmService.processAllSchedulesAndNotify(testReceiverEmail);
+        alarmService.processAllSchedulesAndNotify();
     }
 }

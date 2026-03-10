@@ -32,10 +32,8 @@ public class AlarmService {
 
     /**
      * DB에서 일정 전체 조회해서 알림 조건 맞는 것만 메일 발송
-     * - 테스트 단계: 받는 사람 이메일을 고정(testReceiverEmail)
-     * - 실서비스: memberNo로 회원 이메일 조회해서 보내도록 바꾸면 됨
      */
-    public void processAllSchedulesAndNotify(String testReceiverEmail) {
+    public void processAllSchedulesAndNotify() {
 
         List<Schedule> schedules = scheduleService.getAllSchedules();
         LocalDateTime now = LocalDateTime.now();
@@ -45,7 +43,6 @@ public class AlarmService {
         for (Schedule s : schedules) {
             if (s == null) continue;
 
-            // --- 디버깅 출력(확인용) ---
             System.out.println("ID: " + s.getId());
             System.out.println("TITLE: " + s.getTitle());
             System.out.println("ALERT_ENABLED: " + s.getAlertEnabled());
@@ -53,7 +50,6 @@ public class AlarmService {
             System.out.println("IS_COMPLETED: " + s.getIsCompleted());
             System.out.println("DEADLINE: " + s.getDeadline());
             System.out.println("MEMBER_NO: " + s.getMemberNo());
-            // --------------------------------
 
             // 1) 알림 ON
             if (Boolean.FALSE.equals(s.getAlertEnabled())) continue;
@@ -71,13 +67,29 @@ public class AlarmService {
             long secondsLeft = Duration.between(now, deadline).getSeconds();
             if (secondsLeft < 0) continue;
 
-            // 10분 전 판정
-            if (!(secondsLeft >= 600 && secondsLeft <= 609)) continue;
+            // 24시간 전 판정
+            if (!(secondsLeft >= 86400 && secondsLeft <= 86459)) continue;
 
             // 중복 방지(메모리)
-            String key = (s.getId() != null) ? "scheduleId:" + s.getId() : "member:" + s.getMemberNo() + "|deadline:" + deadline;
+            String key = (s.getId() != null)
+                    ? "scheduleId:" + s.getId()
+                    : "member:" + s.getMemberNo() + "|deadline:" + deadline;
+
             if (!sentKeys.add(key)) {
                 System.out.println("[ALARM] 이미 발송 처리됨(메모리): " + key);
+                continue;
+            }
+
+            // 회원 이메일 조회
+            Member member = memberRepository.findById(s.getMemberNo()).orElse(null);
+            if (member == null) {
+                System.out.println("[ALARM] 회원 정보 없음: memberNo=" + s.getMemberNo());
+                continue;
+            }
+
+            String email = member.getEmail();
+            if (email == null || email.isBlank()) {
+                System.out.println("[ALARM] 이메일 없음: memberNo=" + s.getMemberNo());
                 continue;
             }
 
@@ -90,17 +102,13 @@ public class AlarmService {
                     + "시간: " + deadline + "\n"
                     + "이 일정은 10분 후 시작됩니다.\n";
 
-            Member member = memberRepository.findById(s.getMemberNo()).orElse(null);
-            if (member == null) continue;
-            String email = member.getEmail();
             mailService.sendMail(email, subject, body);
-            
-            System.out.println("[ALARM] ✅ 메일 발송 완료: " + key);
+            System.out.println("[ALARM] ✅ 메일 발송 완료: " + email);
 
-            // DB에 보냄 처리 (IS_NOTIFIED = 'Y')
+            // DB에 보냄 처리
             try {
                 s.setIsNotified(true);
-                scheduleService.updateSchedule(s.getId(), s, s.getMemberNo()); // 권한체크 때문에 memberNo 넣음
+                scheduleService.updateSchedule(s.getId(), s, s.getMemberNo());
                 System.out.println("[ALARM] DB 업데이트 완료(IS_NOTIFIED=Y): id=" + s.getId());
             } catch (Exception e) {
                 System.out.println("[ALARM] DB 업데이트 실패(그래도 메모리로 중복 방지됨): " + e.getMessage());
