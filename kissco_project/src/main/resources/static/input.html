@@ -50,10 +50,13 @@
                 <input type="text" class="form-control form-control-lg" id="titleInput" placeholder="어떤 일정이 있나요?" required>
             </div>
 
-            <div class="mb-4">
-                <label for="deadlineInput" class="form-label fw-bold text-secondary">마감 일시</label>
-                <input type="datetime-local" class="form-control form-control-lg" id="deadlineInput" required>
-            </div>
+			<div class="mb-4">
+				<label class="form-label fw-bold text-secondary">마감 일시</label>
+				<div class="d-flex gap-2">
+					<input type="date" class="form-control form-control-lg" id="dateInput" required>
+					<select class="form-select form-select-lg" id="timeInput" required></select>
+				</div>
+			</div>
 
             <div class="mb-4">
                 <label for="importanceInput" class="form-label fw-bold text-secondary">중요도</label>
@@ -99,47 +102,54 @@
         const scheduleId = urlParams.get('id');
 
         document.addEventListener("DOMContentLoaded", function() 
-        {
-            if (scheduleId) 
-            {
-                document.getElementById('formTitle').innerText = "📝 일정 수정";
-                document.getElementById('deleteBtn').classList.remove('d-none');
-                
-                // 🌟 수정 모드일 때만 완료 체크박스 그룹 표시
-                document.getElementById('completedGroup').style.display = 'flex';
-                
-                // 수정 모드일 때 기존 데이터 불러오기 (GET)
-                fetch(`/api/schedules/${scheduleId}`, {
-    				credentials: 'include'
-				})
-                    .then(res => res.json())
-                    .then(data => 
-                    {
-                        document.getElementById('titleInput').value = data.title;
-                        document.getElementById('deadlineInput').value = data.deadline;
-                        document.getElementById('importanceInput').value = data.importance;
-                        document.getElementById('contentInput').value = data.content;
-                        document.getElementById('alertCheck').checked = data.alertEnabled;
-                        
-                        // 🌟 완료 여부 데이터 바인딩
-                        document.getElementById('completedCheck').checked = data.isCompleted;
-                    })
-                    .catch(err => console.error("데이터 로드 에러:", err));
-            }
-        });
+     	{
+				const timeSelect = document.getElementById('timeInput');
+				for (let i = 0; i < 24; i++) {
+				    let hour = i.toString().padStart(2, '0');
+				    let option = document.createElement('option');
+				    option.value = `${hour}:00`;
+				    option.text = `${hour}:00`;
+				    timeSelect.appendChild(option);
+				}
+				
+			if (scheduleId) 
+			{
+				document.getElementById('formTitle').innerText = "📝 일정 수정";
+				document.getElementById('deleteBtn').classList.remove('d-none');
+				document.getElementById('completedGroup').style.display = 'flex';
+				
+				fetch(`/api/schedules/${scheduleId}`, { credentials: 'include' })
+				    .then(res => res.json())
+				    .then(data => 
+				    {
+				        document.getElementById('titleInput').value = data.title;
+				        
+				        const [datePart, timePart] = data.deadline.split('T');
+				        document.getElementById('dateInput').value = datePart;
+				        document.getElementById('timeInput').value = timePart.substring(0, 5); // "HH:mm"만 추출
+				        
+				        document.getElementById('importanceInput').value = data.importance;
+				        document.getElementById('contentInput').value = data.content;
+				        document.getElementById('alertCheck').checked = data.alertEnabled;
+				        document.getElementById('completedCheck').checked = data.isCompleted;
+				    })
+				    .catch(err => console.error("데이터 로드 에러:", err));
+			}
+		});
 
-        // 저장 로직 (POST/PUT)
         function handleSave() 
         {
+            const dateVal = document.getElementById('dateInput').value;
+            const timeVal = document.getElementById('timeInput').value;
+            const formattedDeadline = `${dateVal}T${timeVal}:00`;
+
             const requestData = 
             {
                 title: document.getElementById('titleInput').value,
-                deadline: document.getElementById('deadlineInput').value,
+                deadline: formattedDeadline, // 합친 변수 적용!
                 importance: parseInt(document.getElementById('importanceInput').value),
                 content: document.getElementById('contentInput').value,
                 alertEnabled: document.getElementById('alertCheck').checked,
-                
-                // 🌟 체크박스 상태에 따라 isCompleted 값 설정 (없으면 기본값 false)
                 isCompleted: document.getElementById('completedCheck') ? document.getElementById('completedCheck').checked : false
             };
 
