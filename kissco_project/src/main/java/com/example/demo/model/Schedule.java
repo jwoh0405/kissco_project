@@ -33,9 +33,6 @@ public class Schedule {
     @Column(name = "ALERT_ENABLED")
     private Boolean alertEnabled;
 
-    @Column(name = "IS_NOTIFIED")
-    private Boolean isNotified = false;
-
     @Column(name = "IS_COMPLETED")
     private Boolean isCompleted = false;
 
@@ -89,14 +86,6 @@ public class Schedule {
 
 	public void setAlertEnabled(Boolean alertEnabled) {
 		this.alertEnabled = alertEnabled;
-	}
-
-	public Boolean getIsNotified() {
-		return isNotified;
-	}
-
-	public void setIsNotified(Boolean isNotified) {
-		this.isNotified = isNotified;
 	}
 
 	public Boolean getIsCompleted() {

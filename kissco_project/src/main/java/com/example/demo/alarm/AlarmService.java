@@ -46,7 +46,7 @@ public class AlarmService {
             System.out.println("ID: " + s.getId());
             System.out.println("TITLE: " + s.getTitle());
             System.out.println("ALERT_ENABLED: " + s.getAlertEnabled());
-            System.out.println("IS_NOTIFIED: " + s.getIsNotified());
+            //System.out.println("IS_NOTIFIED: " + s.getIsNotified());
             System.out.println("IS_COMPLETED: " + s.getIsCompleted());
             System.out.println("DEADLINE: " + s.getDeadline());
             System.out.println("MEMBER_NO: " + s.getMemberNo());
@@ -55,7 +55,7 @@ public class AlarmService {
             if (Boolean.FALSE.equals(s.getAlertEnabled())) continue;
 
             // 2) 이미 보냄
-            if (Boolean.TRUE.equals(s.getIsNotified())) continue;
+            //if (Boolean.TRUE.equals(s.getIsNotified())) continue;
 
             // 3) 완료 일정 제외
             if (Boolean.TRUE.equals(s.getIsCompleted())) continue;
@@ -107,7 +107,7 @@ public class AlarmService {
 
             // DB에 보냄 처리
             try {
-                s.setIsNotified(true);
+                //s.setIsNotified(true);
                 scheduleService.updateSchedule(s.getId(), s, s.getMemberNo());
                 System.out.println("[ALARM] DB 업데이트 완료(IS_NOTIFIED=Y): id=" + s.getId());
             } catch (Exception e) {
