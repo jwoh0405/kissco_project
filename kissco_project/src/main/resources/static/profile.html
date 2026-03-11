@@ -73,7 +73,7 @@
     <div class="profile-container p-4 p-md-5">
         
         <div class="d-flex justify-content-end mb-2">
-            <button type="button" class="btn-close" aria-label="Close" onclick="location.href='dashboard.html'"></button>
+            <button type="button" class="btn-close" aria-label="Close" onclick="location.href='/dashboard'"></button>
         </div>
 
         <div class="text-center mb-4">
@@ -128,7 +128,7 @@
 	
 	        if(!user){
 	            alert("로그인이 필요합니다.");
-	            location.href = "login.html";
+	            location.href = "/login";
 	            return;
 	        }
 	
@@ -213,7 +213,7 @@
                 if (response.ok) 
                 {
                     alert("회원 정보가 성공적으로 변경되었습니다.");
-                    location.href = 'dashboard.html';
+                    location.href = '/dashboard';
                 }
             })
             .catch(error => console.error("통신 에러:", error));
@@ -233,7 +233,7 @@
                         if (response.ok) 
                         {
                             alert("안전하게 로그아웃 되었습니다.");
-                            location.href = 'login.html';
+                            location.href = '/login';
                         }
                     })
                     .catch(error => console.error("로그아웃 에러:", error));
