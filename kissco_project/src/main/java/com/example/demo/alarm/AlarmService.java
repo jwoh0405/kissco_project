@@ -13,6 +13,7 @@ import com.example.demo.service.MailService;
 import com.example.demo.service.ScheduleService;
 import com.example.demo.repository.MemberRepository;
 import com.example.demo.model.Member;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class AlarmService {
@@ -67,8 +68,8 @@ public class AlarmService {
             long secondsLeft = Duration.between(now, deadline).getSeconds();
             if (secondsLeft < 0) continue;
 
-            // 24시간 전 판정
-            if (!(secondsLeft >= 86400 && secondsLeft <= 86459)) continue;
+            // 24시간 전 ~ 25시간 전 사이의 일정만 대상으로 함
+            if (!(secondsLeft > 86400 && secondsLeft <= 90000)) continue;
 
             // 중복 방지(메모리)
             String key = (s.getId() != null)
@@ -94,16 +95,30 @@ public class AlarmService {
             }
 
             // 메일 발송
-            String subject = "[알림] " + s.getTitle();
+            deadline = s.getDeadline();
+
+            DateTimeFormatter formatter =
+                    DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분");
+
+            String formattedDeadline = deadline.format(formatter);
+
+            String subject = "[일정 알림] " + s.getTitle() + " 일정이 곧 시작됩니다";
+
             String body =
-                    "일정 알림입니다.\n\n"
-                    + "제목: " + s.getTitle() + "\n"
-                    + "내용: " + (s.getContent() == null ? "" : s.getContent()) + "\n"
-                    + "시간: " + deadline + "\n"
-                    + "이 일정은 10분 후 시작됩니다.\n";
+                    "안녕하세요.\n\n"
+                    + "등록하신 일정에 대한 알림입니다.\n\n"
+                    + "────────────────────────\n"
+                    + "📌 일정 제목 : " + s.getTitle() + "\n"
+                    + "📝 일정 내용 : " + (s.getContent() == null ? "없음" : s.getContent()) + "\n"
+                    + "⏰ 일정 시간 : " + formattedDeadline + "\n"
+                    + "────────────────────────\n\n"
+                    + "해당 일정은 24시간 후 시작됩니다.\n"
+                    + "미리 준비해 주세요.\n\n"
+                    + "감사합니다.\n"
+                    + "일정 관리 시스템";
 
             mailService.sendMail(email, subject, body);
-            System.out.println("[ALARM] ✅ 메일 발송 완료: " + email);
+            System.out.println("[ALARM] 메일 발송 완료: " + email);
 
             // DB에 보냄 처리
             try {

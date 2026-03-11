@@ -12,9 +12,12 @@ public class AlarmScheduler {
         this.alarmService = alarmService;
     }
 
-    // 1분마다
-    @Scheduled(cron = "0 * * * * *")
+    // 매시간 정각 실행
+    @Scheduled(cron = "0 0 * * * *")
     public void run() {
+
+        System.out.println("[ALARM SCHEDULER] 정각 스케줄러 실행됨");
+
         alarmService.processAllSchedulesAndNotify();
     }
 }
