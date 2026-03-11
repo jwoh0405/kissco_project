@@ -1,19 +1,18 @@
 package com.example.demo.alarm;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 
+import com.example.demo.model.Member;
 import com.example.demo.model.Schedule;
+import com.example.demo.repository.MemberRepository;
 import com.example.demo.service.MailService;
 import com.example.demo.service.ScheduleService;
-import com.example.demo.repository.MemberRepository;
-import com.example.demo.model.Member;
-import java.time.format.DateTimeFormatter;
 
 @Service
 public class AlarmService {
@@ -22,56 +21,47 @@ public class AlarmService {
     private final MailService mailService;
     private final MemberRepository memberRepository;
 
-    // DB 업데이트 실패 시 스팸 방지
+    // 서버 실행 중 메모리 중복 방지
     private final Set<String> sentKeys = ConcurrentHashMap.newKeySet();
 
-    public AlarmService(ScheduleService scheduleService, MailService mailService, MemberRepository memberRepository) {
+    public AlarmService(ScheduleService scheduleService,
+                        MailService mailService,
+                        MemberRepository memberRepository) {
         this.scheduleService = scheduleService;
         this.mailService = mailService;
         this.memberRepository = memberRepository;
     }
 
     /**
-     * DB에서 일정 전체 조회해서 알림 조건 맞는 것만 메일 발송
+     * DB에서 일정 전체 조회해서
+     * 매시간 정각 기준 "24시간 뒤 같은 시간대" 일정만 메일 발송
      */
     public void processAllSchedulesAndNotify() {
 
         List<Schedule> schedules = scheduleService.getAllSchedules();
         LocalDateTime now = LocalDateTime.now();
 
-        System.out.println("[ALARM] schedules size=" + schedules.size() + ", now=" + now);
-
         for (Schedule s : schedules) {
             if (s == null) continue;
-
-            System.out.println("ID: " + s.getId());
-            System.out.println("TITLE: " + s.getTitle());
-            System.out.println("ALERT_ENABLED: " + s.getAlertEnabled());
-            //System.out.println("IS_NOTIFIED: " + s.getIsNotified());
-            System.out.println("IS_COMPLETED: " + s.getIsCompleted());
-            System.out.println("DEADLINE: " + s.getDeadline());
-            System.out.println("MEMBER_NO: " + s.getMemberNo());
 
             // 1) 알림 ON
             if (Boolean.FALSE.equals(s.getAlertEnabled())) continue;
 
-            // 2) 이미 보냄
-            //if (Boolean.TRUE.equals(s.getIsNotified())) continue;
-
-            // 3) 완료 일정 제외
+            // 2) 완료 일정 제외
             if (Boolean.TRUE.equals(s.getIsCompleted())) continue;
 
-            // 4) deadline 체크
+            // 3) deadline 체크
             LocalDateTime deadline = s.getDeadline();
             if (deadline == null) continue;
 
-            long secondsLeft = Duration.between(now, deadline).getSeconds();
-            if (secondsLeft < 0) continue;
+            LocalDateTime currentHour = now.withMinute(0).withSecond(0).withNano(0);
+            LocalDateTime start = currentHour.plusHours(24);
+            LocalDateTime end = start.plusHours(1);
+            
+            // 내일 같은 시간대 일정만 알림
+            if (deadline.isBefore(start) || !deadline.isBefore(end)) continue;
 
-            // 24시간 전 ~ 25시간 전 사이의 일정만 대상으로 함
-            if (!(secondsLeft > 86400 && secondsLeft <= 90000)) continue;
-
-            // 중복 방지(메모리)
+            // 4) 중복 방지(메모리)
             String key = (s.getId() != null)
                     ? "scheduleId:" + s.getId()
                     : "member:" + s.getMemberNo() + "|deadline:" + deadline;
@@ -81,7 +71,7 @@ public class AlarmService {
                 continue;
             }
 
-            // 회원 이메일 조회
+            // 5) 회원 이메일 조회
             Member member = memberRepository.findById(s.getMemberNo()).orElse(null);
             if (member == null) {
                 System.out.println("[ALARM] 회원 정보 없음: memberNo=" + s.getMemberNo());
@@ -94,9 +84,7 @@ public class AlarmService {
                 continue;
             }
 
-            // 메일 발송
-            deadline = s.getDeadline();
-
+            // 6) 메일 내용 작성
             DateTimeFormatter formatter =
                     DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분");
 
@@ -117,16 +105,13 @@ public class AlarmService {
                     + "감사합니다.\n"
                     + "일정 관리 시스템";
 
-            mailService.sendMail(email, subject, body);
-            System.out.println("[ALARM] 메일 발송 완료: " + email);
-
-            // DB에 보냄 처리
+            // 7) 메일 발송
             try {
-                //s.setIsNotified(true);
-                scheduleService.updateSchedule(s.getId(), s, s.getMemberNo());
-                System.out.println("[ALARM] DB 업데이트 완료(IS_NOTIFIED=Y): id=" + s.getId());
+                mailService.sendMail(email, subject, body);
+                System.out.println("[ALARM] 메일 발송 완료: " + email);
             } catch (Exception e) {
-                System.out.println("[ALARM] DB 업데이트 실패(그래도 메모리로 중복 방지됨): " + e.getMessage());
+                System.out.println("[ALARM] 메일 발송 실패: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
