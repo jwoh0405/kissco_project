@@ -117,7 +117,6 @@ public class ScheduleService {
         schedule.setImportance(updated.getImportance());
         schedule.setAlertEnabled(updated.getAlertEnabled());
         schedule.setIsCompleted(updated.getIsCompleted());
-        schedule.setIsNotified(updated.getIsNotified());
 
         return scheduleRepository.save(schedule);
     }
