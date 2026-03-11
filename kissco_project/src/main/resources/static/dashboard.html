@@ -136,17 +136,17 @@
 
 	<nav class="navbar navbar-expand-lg navbar-custom sticky-top py-3">
         <div class="container">
-            <a class="navbar-brand fw-bold text-dark" href="dashboard.html">📅 Smart Scheduler</a>
+            <a class="navbar-brand fw-bold text-dark" href="/dashboard">📅 Smart Scheduler</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3 ms-4">
-                    <li class="nav-item"><a class="nav-link active" href="dashboard.html">내 일정 보기</a></li>
-                    <li class="nav-item"><a class="nav-link" href="input.html">새 일정 추가</a></li> 
+                    <li class="nav-item"><a class="nav-link active" href="/dashboard">내 일정 보기</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/input">새 일정 추가</a></li> 
                 </ul>
                 <div class="d-flex">
-                    <button class="btn btn-light rounded-pill fw-bold border" onclick="location.href='profile.html'">
+                    <button class="btn btn-light rounded-pill fw-bold border" onclick="location.href='/profile'">
                         👤 <span id="userNameDisplay">사용자</span> 님 (계정관리)
                     </button>
                 </div>
@@ -269,7 +269,7 @@
                 const alertIcon = schedule.alertEnabled ? "🔔 알림 켜짐" : "🔕 알림 꺼짐";
 
                 const cardHTML = `
-                    <div class="schedule-card priority-${schedule.importance} ${customCardClass} p-3 shadow-sm mb-2" onclick="location.href='input.html?id=${schedule.id}'">
+                    <div class="schedule-card priority-${schedule.importance} ${customCardClass} p-3 shadow-sm mb-2" onclick="location.href='/input?id=${schedule.id}'">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="card-info">
                                 <div class="star-rating mb-1 ${customTextClass}">${stars}</div>

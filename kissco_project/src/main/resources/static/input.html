@@ -40,7 +40,7 @@
         
         <div class="d-flex justify-content-between align-items-center border-bottom border-dark pb-3 mb-4">
             <h3 class="fw-bold mb-0 text-dark" id="formTitle">✏️ 새 일정 추가</h3>
-            <button type="button" class="btn-close" aria-label="Close" onclick="location.href='dashboard.html'"></button>
+            <button type="button" class="btn-close" aria-label="Close" onclick="location.href='/dashboard'"></button>
         </div>
 
         <form id="scheduleForm" onsubmit="event.preventDefault(); handleSave();">
@@ -90,7 +90,7 @@
 
             <div class="d-flex justify-content-end gap-2 mt-2">
                 <button type="button" class="btn btn-danger fw-bold d-none" id="deleteBtn" onclick="deleteSchedule()">삭제</button> 
-                <button type="button" class="btn btn-secondary fw-bold" onclick="location.href='dashboard.html'">취소</button>
+                <button type="button" class="btn btn-secondary fw-bold" onclick="location.href='/dashboard'">취소</button>
                 <button type="submit" class="btn btn-primary fw-bold" style="background-color: #2980b9; border: none;">저장</button>
             </div>
             
@@ -168,7 +168,7 @@
                 if (res.ok) 
                 {
                     alert(scheduleId ? "수정되었습니다." : "등록되었습니다.");
-                    location.href = 'dashboard.html';
+                    location.href = '/dashboard';
                 }
             })
             .catch(err => console.error("저장 에러:", err));
@@ -188,7 +188,7 @@
                         if (res.ok) 
                         {
                             alert("삭제되었습니다.");
-                            location.href = 'dashboard.html';
+                            location.href = '/dashboard';
                         }
                     })
                     .catch(err => console.error("삭제 에러:", err));
