@@ -15,6 +15,11 @@ public class MemberService {
     }
     
     public void register(Member member) {
+
+        if(memberRepository.findByEmail(member.getEmail()).isPresent()){
+            throw new RuntimeException("이미 사용중인 이메일입니다.");
+        }
+
         memberRepository.save(member);
     }
     
@@ -32,10 +37,14 @@ public class MemberService {
             throw new RuntimeException("회원 없음");
         }
 
+        if(!member.getEmail().equals(updated.getEmail())
+            && memberRepository.findByEmail(updated.getEmail()).isPresent()){
+            throw new RuntimeException("이미 사용중인 이메일입니다.");
+        }
+
         member.setEmail(updated.getEmail());
         member.setName(updated.getName());
 
-        // 비밀번호가 입력된 경우에만 변경
         if(updated.getPassword() != null && !updated.getPassword().isEmpty()){
             member.setPassword(updated.getPassword());
         }

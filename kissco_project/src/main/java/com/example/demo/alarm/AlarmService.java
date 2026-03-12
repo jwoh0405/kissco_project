@@ -54,12 +54,22 @@ public class AlarmService {
             LocalDateTime deadline = s.getDeadline();
             if (deadline == null) continue;
 
-            LocalDateTime currentHour = now.withMinute(0).withSecond(0).withNano(0);
-            LocalDateTime start = currentHour.plusHours(24);
-            LocalDateTime end = start.plusHours(1);
+//            LocalDateTime currentHour = now.withMinute(0).withSecond(0).withNano(0);
+//            LocalDateTime start = currentHour.plusHours(24);
+//            LocalDateTime end = start.plusHours(1);
+//            
+//            // 내일 같은 시간대 일정만 알림
+//            if (deadline.isBefore(start) || !deadline.isBefore(end)) continue;
             
-            // 내일 같은 시간대 일정만 알림
-            if (deadline.isBefore(start) || !deadline.isBefore(end)) continue;
+            //시연용
+            LocalDateTime target = now.plusHours(24);
+
+            // 정확히 24시간 전 (분까지 동일)
+            if (!deadline.withSecond(0).withNano(0)
+            		.equals(target.withSecond(0).withNano(0))) {
+            	continue;
+            }
+            //여기까지 시연용
 
             // 4) 중복 방지(메모리)
             String key = (s.getId() != null)

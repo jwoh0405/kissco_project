@@ -15,10 +15,10 @@ public class AlarmScheduler {
     }
 
     // 매시간 정각 실행 (운영용)
-    @Scheduled(cron = "0 0 * * * *")
+    //@Scheduled(cron = "0 0 * * * *")
     
     // 매분 실행 (시연용) 
-    // @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void run() {
         System.out.println("[ALARM SCHEDULER] 정각 스케줄러 실행됨: " + LocalDateTime.now());
         alarmService.processAllSchedulesAndNotify();

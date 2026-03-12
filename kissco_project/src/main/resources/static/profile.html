@@ -193,31 +193,34 @@
 
         // 🌟 회원 정보 저장 (PUT)
         function saveProfile() 
-        {
-            const requestData = 
-            {
-                name: document.getElementById('nameInput').value,
-                email: document.getElementById('emailInput').value,
-                password: document.getElementById('passwordInput').value || null
-            };
-
-            fetch('/api/members/me', 
-            {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify(requestData)
-            })
-            .then(response => 
-            {
-                if (response.ok) 
-                {
-                    alert("회원 정보가 성공적으로 변경되었습니다.");
-                    location.href = '/dashboard';
-                }
-            })
-            .catch(error => console.error("통신 에러:", error));
-        }
+		{
+		    const requestData = 
+		    {
+		        name: document.getElementById('nameInput').value,
+		        email: document.getElementById('emailInput').value,
+		        password: document.getElementById('passwordInput').value || null
+		    };
+		
+		    fetch('/api/members/me', 
+		    {
+		        method: 'PUT',
+		        headers: { 'Content-Type': 'application/json' },
+		        credentials: 'include',
+		        body: JSON.stringify(requestData)
+		    })
+		    .then(response => response.text())
+		    .then(message => {
+		
+		        if(message === "success"){
+		            alert("회원 정보가 성공적으로 변경되었습니다.");
+		            location.href = '/dashboard';
+		        }else{
+		            alert(message); // 이미 사용중인 이메일입니다.
+		        }
+		
+		    })
+		    .catch(error => console.error("통신 에러:", error));
+		}
 
         // 🌟 로그아웃 (POST)
         function logout() 

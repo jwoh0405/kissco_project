@@ -49,8 +49,11 @@ public class MemberController {
             return "login required";
         }
 
-        memberService.updateMember(memberNo, member);
-
-        return "success";
+        try {
+            memberService.updateMember(memberNo, member);
+            return "success";
+        } catch (RuntimeException e) {
+            return e.getMessage();
+        }
     }
 }
