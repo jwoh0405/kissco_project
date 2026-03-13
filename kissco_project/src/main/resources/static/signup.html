@@ -115,13 +115,12 @@
                         <a href="/login" class="text-decoration-none text-muted small">이미 계정이 있으신가요? 로그인 화면으로</a>
                     </div>
                 </form>
-
             </div>
         </div>
     </div>
-
+    
     <script>
-        // 1. 비밀번호 보기/숨기기 토글
+        //비밀번호 보기/숨기기 토글
         function togglePassword(inputId, iconElement) 
         {
             const pwInput = document.getElementById(inputId);
@@ -138,7 +137,7 @@
             }
         }
 
-        // 2. 🌟 회원가입 실전 로직 (API 통신)
+        //회원가입 실전 로직 (API 통신)
         function handleSignup() 
         {
             const name = document.getElementById("nameInput").value;
@@ -146,7 +145,7 @@
             const password = document.getElementById("passwordInput").value;
             const passwordConfirm = document.getElementById("passwordConfirmInput").value;
 
-            // 비밀번호 일치 확인 (Front-end Validation)
+            //비밀번호 일치 확인 (Front-end Validation)
             if (password !== passwordConfirm) 
             {
                 alert("비밀번호가 일치하지 않습니다. 다시 확인해주세요.");

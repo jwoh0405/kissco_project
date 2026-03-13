@@ -110,14 +110,14 @@
         	const urlParams = new URLSearchParams(window.location.search);
         	if (urlParams.get('msg') === 'require') {
           		alert("로그인이 필요한 서비스입니다.");
-            	// 알림창 확인 후 URL에서 파라미터를 깔끔하게 제거
+
             	const cleanUrl = window.location.pathname;
             	window.history.replaceState({}, document.title, cleanUrl);
         	}
     	})();
     
     
-        // 1. 스플래시 애니메이션 실행
+        //스플래시 애니메이션 실행
         window.onload = function() 
         {
             setTimeout(function() 
@@ -127,7 +127,7 @@
             }, 1000); 
         };
 
-        // 2. 비밀번호 보이기/숨기기 토글 함수
+        //비밀번호 보이기/숨기기 토글 함수
         function togglePassword() 
         {
             const pwInput = document.getElementById("passwordInput");
@@ -147,7 +147,7 @@
             }
         }
 
-        // 3. 🌟 로그인 처리 로직 (REST API 통신)
+        //로그인 처리 로직 (REST API 통신)
         function handleLogin() 
         {
             const email = document.getElementById("emailInput").value;
@@ -173,13 +173,12 @@
             {
                 if (response.ok) 
                 {
-                    // 서버가 성공(200 OK)을 보내면 대시보드로 이동
-                    //location.href = 'dashboard.html';
+                    //서버가 성공(200 OK)을 보내면 대시보드로 이동
                     location.href = '/dashboard';
                 } 
                 else 
                 {
-                    // 인증 실패 시 사용자 알림
+                    //인증 실패 시 사용자 알림
                     alert("이메일 또는 비밀번호가 일치하지 않습니다.");
                 }
             })

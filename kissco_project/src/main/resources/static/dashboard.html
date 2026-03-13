@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -142,7 +143,8 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3 ms-4">
-                    <li class="nav-item"><a class="nav-link active" href="/dashboard">내 일정 보기</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/dashboard">진행 일정 보기</a></li>
+                    <li class="nav-item"><a class="nav-link">완료 일정 보기</a></li> 
                     <li class="nav-item"><a class="nav-link" href="/input">새 일정 추가</a></li> 
                 </ul>
                 <div class="d-flex">
@@ -181,26 +183,26 @@
 
         document.addEventListener("DOMContentLoaded", function() 
         {
-            // 1. 서버로부터 스케줄 목록 요청
+            //서버로부터 스케줄 목록 요청
             fetch('/api/schedules', {
     			credentials: 'include'
 			})
                 .then(response => response.json())
                 .then(data => 
                 {
-                    // 좌측 리스트 렌더링
+                    //좌측 리스트 렌더링
                     renderSchedules(data); 
 
-                    // 우측 달력 이벤트 데이터 주입
+                    //우측 달력 이벤트 데이터 주입
                     const calendarEvents = data.map(schedule => ({
                         id: schedule.id,
                         title: schedule.title,
                         start: schedule.deadline,
-                        // 완료된 일정은 달력에서도 회색으로 표시
+                        //완료된 일정은 달력에서도 회색으로 표시
                         color: schedule.isCompleted ? '#bdc3c7' : (schedule.importance >= 4 ? '#e74c3c' : '#3498db')
                     }));
                     
-                    // 달력 객체에 데이터 직접 반영
+                    //달력 객체에 데이터 직접 반영
                     if(calendar) 
                     {	
                     	calendar.addEventSource(calendarEvents);
@@ -237,7 +239,7 @@
                 const stars = '⭐'.repeat(schedule.importance);
                 const dDayNum = calculateDDay(schedule.deadline);
                 
-             	// 🌟 상태에 따른 디자인 로직 3분기
+             	//상태에 따른 디자인 로직 3분기
                 let dDayText = "";
                 let dDayColor = "";
                 let customCardClass = "";
@@ -245,7 +247,7 @@
 
                 if (schedule.isCompleted)
                 {
-                    // 1. 완료된 일정 (우선순위 1등)
+                    //완료된 일정 (우선순위 1등)
                     dDayText = "완료됨";
                     dDayColor = "bg-secondary";
                     customCardClass = "completed-schedule"; 
@@ -253,7 +255,7 @@
                 } 
                 else if (dDayNum < 0) 
                 {
-                    // 2. 🚨 기한이 지난 일정 (완료 안 했는데 날짜가 지남)
+                    //기한이 지난 일정 (완료 안 했는데 날짜가 지남)
                     dDayText = "기한 만료";
                     dDayColor = "bg-dark"; // 검은색 뱃지로 눈에 띄게
                     customCardClass = "past-due-card"; 
@@ -261,9 +263,17 @@
                 } 
                 else 
                 {
-                    // 3. 정상 진행 중인 일정
+                    //정상 진행 중인 일정
                     dDayText = dDayNum === 0 ? "D-Day" : `D-${dDayNum}`;
                     dDayColor = dDayNum === 0 ? "bg-danger" : (dDayNum <= 3 ? "bg-warning text-dark" : "bg-primary");
+                }
+                
+                //메모에 표시되는 글자수 제한 (30자 이후는 ...으로 표시)
+                let displayContent = "";
+                if (schedule.content) {
+                    displayContent = schedule.content.length > 30 
+                        ? schedule.content.substring(0, 30) + "..." 
+                        : schedule.content;
                 }
 
                 const alertIcon = schedule.alertEnabled ? "🔔 알림 켜짐" : "🔕 알림 꺼짐";
@@ -276,7 +286,7 @@
                                 <h5 class="fw-bold mb-1 text-dark ${customTextClass}">${schedule.title}</h5>
                                 <div class="text-muted small ${customTextClass}">
                                     <i class="fa-regular fa-clock me-1"></i>${schedule.deadline.replace('T', ' ')}
-                                    <span class="ms-2">📝 ${schedule.content ? schedule.content : ""}</span>
+                                    <span class="ms-2" title="${schedule.content ? schedule.content : ''}">📝 ${displayContent}</span>
                                 </div>
                             </div>
                             <div class="card-action text-end">

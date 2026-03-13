@@ -142,14 +142,14 @@
 	
 	});
     
-        // 아바타 실시간 업데이트
+        //아바타 실시간 업데이트
         document.getElementById('nameInput').addEventListener('input', function(e) 
         {
             const firstLetter = e.target.value.charAt(0) || "?";
             document.getElementById('profileAvatar').innerText = firstLetter;
         });
 
-        // 이메일 수정 모드 토글
+        //이메일 수정 모드 토글
         function toggleEmailEdit() 
         {
             const emailInput = document.getElementById("emailInput");
@@ -173,7 +173,7 @@
             }
         }
 
-        // 비밀번호 보기 토글
+        //비밀번호 보기 토글
         function togglePassword() 
         {
             const pwInput = document.getElementById("passwordInput");
@@ -191,7 +191,7 @@
             }
         }
 
-        // 🌟 회원 정보 저장 (PUT)
+        //회원 정보 저장 (PUT)
         function saveProfile() 
 		{
 		    const requestData = 
@@ -215,14 +215,14 @@
 		            alert("회원 정보가 성공적으로 변경되었습니다.");
 		            location.href = '/dashboard';
 		        }else{
-		            alert(message); // 이미 사용중인 이메일입니다.
+		            alert(message); //이미 사용중인 이메일입니다.
 		        }
 		
 		    })
 		    .catch(error => console.error("통신 에러:", error));
 		}
 
-        // 🌟 로그아웃 (POST)
+        //로그아웃 (POST)
         function logout() 
         {
             if (confirm("정말로 로그아웃 하시겠습니까?")) 
@@ -243,6 +243,5 @@
             }
         }
     </script>
-
 </body>
 </html>
