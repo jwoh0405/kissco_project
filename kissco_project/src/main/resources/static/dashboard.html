@@ -271,8 +271,8 @@
                 //메모에 표시되는 글자수 제한 (30자 이후는 ...으로 표시)
                 let displayContent = "";
                 if (schedule.content) {
-                    displayContent = schedule.content.length > 30 
-                        ? schedule.content.substring(0, 30) + "..." 
+                    displayContent = schedule.content.length > 25 
+                        ? schedule.content.substring(0, 25) + "..." 
                         : schedule.content;
                 }
 
